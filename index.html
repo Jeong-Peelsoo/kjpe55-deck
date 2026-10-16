@@ -762,13 +762,51 @@
   .acc-p .r2{position:absolute;right:12px;top:12px;padding:6px 12px;background:var(--ink);color:#fff;font-size:17px;font-weight:700;
     box-shadow:0 6px 16px rgba(0,0,0,.25)}
   .acc-p .r2 b{color:#9fd0f2}
-  .slide.on .acc-p .r2{animation:vzPop .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:4.4s}
+  .slide.on .acc-p .r2{animation:accR2 10s linear infinite}   /* 2026-10-14 — 아크라 생성과 같은 10초 순환. 4.4초에 서고 8.3초에 진다 */
+  @keyframes accR2{0%,44%{opacity:0;transform:scale(.35)}46%{opacity:1;transform:scale(1.06)}48%,83%{opacity:1;transform:scale(1)}87%,100%{opacity:0;transform:scale(1)}}
   .acc-key{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--dim)}
   .acc-key i{display:block;width:120px;height:9px;background:linear-gradient(90deg,#1a9850,#a6d96a,#ffffbf,#fdae61,#d73027)}
   .acc-mid{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
   .acc-mid .t1{font-size:19px;font-weight:700;color:var(--accent);line-height:1.3}
   .acc-mid .t2{font-size:17px;font-weight:700;color:var(--accent);line-height:1.3}
   .acc-mid .viz{width:260px;height:auto}
+  .acc-mid .t2{margin-top:-4px}
+  /* ⑩ 가운데 로봇(2026-10-14) — 10초 순환: 0–1.5초 왼쪽에서 학습(LA 스캔과 같은 구간) · 1.5–2초 건너뜀 · 2–8.3초 오른쪽에서 추론
+     (아크라 생성 1.5–4.4초를 덮는다) · 8.3–8.9초 되돌아옴. 기본값(움직임 없음)은 추론 자세다 — 정적 반출이 7.5초에 찍는 자세와 같다. */
+  .acc-mid .acc-bot{overflow:visible;margin-bottom:-6px}
+  .acc-bot text{stroke:none}                      /* .viz text 의 흰 테두리는 색 바탕 말풍선 글자를 뭉갠다 */
+  .acc-bot .bx{transform:translateX(190px)}
+  .acc-bot .tl,.acc-bot .din{opacity:0}
+  .acc-bot .eyes{transform:translateX(2.5px)}
+  .acc-bot .armL,.acc-bot .armR,.acc-bot .eye,.acc-bot .core{transform-box:fill-box}
+  .acc-bot .armL{transform-origin:100% 0}
+  .acc-bot .armR{transform-origin:0 0;transform:rotate(-80deg)}
+  .acc-bot .eye,.acc-bot .core{transform-origin:center}
+  .slide.on .acc-bot .bx{animation:abX 10s cubic-bezier(.5,0,.3,1) infinite}
+  .slide.on .acc-bot .by{animation:abHop 10s ease-out infinite}
+  .slide.on .acc-bot .bb{animation:abBob 1.8s ease-in-out infinite alternate}
+  .slide.on .acc-bot .tl,.slide.on .acc-bot .din{animation:abLearn 10s linear infinite}
+  .slide.on .acc-bot .ti,.slide.on .acc-bot .dout{animation:abInfer 10s linear infinite}
+  .slide.on .acc-bot .eyes{animation:abLook 10s ease-in-out infinite}
+  .slide.on .acc-bot .eye{animation:abBlink 3.4s linear infinite}
+  .slide.on .acc-bot .armL{animation:abArmL 10s ease-in-out infinite}
+  .slide.on .acc-bot .armR{animation:abArmR 10s ease-in-out infinite}
+  .slide.on .acc-bot .ant{animation:vzPulse .9s ease-in-out infinite}
+  .slide.on .acc-bot .core{animation:abCore 1.2s ease-in-out infinite alternate}
+  .slide.on .acc-bot .din circle,.slide.on .acc-bot .dout circle{animation:abDot .9s linear infinite}
+  .slide.on .acc-bot circle:nth-child(2){animation-delay:.3s}
+  .slide.on .acc-bot circle:nth-child(3){animation-delay:.6s}
+  @keyframes abX{0%,15%{transform:translateX(70px)}20%,83%{transform:translateX(190px)}89%,100%{transform:translateX(70px)}}
+  @keyframes abHop{0%,15%,20%,83%,89%,100%{transform:translateY(0)}17.5%,86%{transform:translateY(-14px)}}
+  @keyframes abBob{to{transform:translateY(-2.5px)}}
+  @keyframes abLearn{0%,14%{opacity:1}17%,88%{opacity:0}91%,100%{opacity:1}}
+  @keyframes abInfer{0%,19%{opacity:0}22%,82%{opacity:1}85%,100%{opacity:0}}
+  @keyframes abLook{0%,15%{transform:translateX(-2.5px)}20%,83%{transform:translateX(2.5px)}89%,100%{transform:translateX(-2.5px)}}
+  @keyframes abBlink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
+  @keyframes abArmL{0%{transform:rotate(80deg)}7%{transform:rotate(60deg)}14%{transform:rotate(80deg)}18%,88%{transform:rotate(0)}92%{transform:rotate(80deg)}96%{transform:rotate(60deg)}100%{transform:rotate(80deg)}}
+  @keyframes abArmR{0%,19%{transform:rotate(0)}23%,43%,63%,82%{transform:rotate(-85deg)}33%,53%,73%{transform:rotate(-62deg)}86%,100%{transform:rotate(0)}}
+  @keyframes abCore{to{transform:scale(1.35)}}
+  @keyframes abDot{0%{transform:translateX(0);opacity:0}15%,80%{opacity:1}100%{transform:translateX(30px);opacity:0}}
   .acc-src{margin:8px 0 0;text-align:right;font-size:14px;color:var(--dim)}
   @media (prefers-reduced-motion: reduce){ .slide.on .acc-p .r2{animation:none} }
 
@@ -1889,8 +1927,34 @@
         <div class="acc-key"><span>낮음</span><i></i><span>높음 · 원 그림 색 막대</span></div>
       </figure>
       <div class="acc-mid">
-        <span class="t1">비지도 전이학습</span>
+        <!-- 2026-10-14 사용자 지시 — '비지도 전이학습' 을 G · D 상자 아래로 내리고, 그 자리에 작은 로봇을 세웠다.
+             로봇은 왼쪽(LA)을 보며 배우고 → 오른쪽으로 건너가 아크라 쪽으로 추론을 내보낸다(10초 순환. CSS ⑩ acc-bot).
+             연출이다 — 점의 색 · 수 · 순서는 자료와 무관하다. 움직임을 끄면(인쇄 · reduced-motion) 추론 자세로 선다. -->
+        <svg class="viz acc-bot" viewBox="0 0 260 132" aria-hidden="true">
+          <g class="din"><circle cx="5" cy="64" r="3.8" fill="#1a9850"/><circle cx="5" cy="64" r="3.8" fill="#fdae61"/><circle cx="5" cy="64" r="3.8" fill="#d73027"/></g>
+          <g class="dout"><circle cx="226" cy="64" r="3.8" fill="#1a9850"/><circle cx="226" cy="64" r="3.8" fill="#fdae61"/><circle cx="226" cy="64" r="3.8" fill="#d73027"/></g>
+          <g class="bx">
+            <ellipse class="sh" cx="0" cy="127" rx="20" ry="3.2" fill="#11151a" fill-opacity=".14"/>
+            <g class="by"><g class="bb"><g transform="translate(0 7) scale(1.35)">
+              <g class="tag tl"><rect x="-19" y="-3" width="38" height="17" rx="8.5" fill="#FD6925"/><text x="0" y="9.5" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">학습</text></g>
+              <g class="tag ti"><rect x="-19" y="-3" width="38" height="17" rx="8.5" fill="#19486A"/><text x="0" y="9.5" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">추론</text></g>
+              <path d="M0 28V23" stroke="#19486A" stroke-width="2" stroke-linecap="round"/><circle class="ant" cx="0" cy="20.5" r="3" fill="#FD9D24"/>
+              <rect x="-25" y="37" width="6" height="12" rx="3" fill="#19486A"/><rect x="19" y="37" width="6" height="12" rx="3" fill="#19486A"/>
+              <rect x="-21" y="28" width="42" height="30" rx="11" fill="#fff" stroke="#19486A" stroke-width="2"/>
+              <rect x="-16" y="33" width="32" height="20" rx="8" fill="#19486A"/>
+              <g class="eyes"><ellipse class="eye" cx="-7" cy="41.5" rx="3" ry="3.6" fill="#8fe3ff"/><ellipse class="eye" cx="7" cy="41.5" rx="3" ry="3.6" fill="#8fe3ff"/></g>
+              <path d="M-3.5 47.5q3.5 3 7 0" fill="none" stroke="#8fe3ff" stroke-width="1.6" stroke-linecap="round"/>
+              <circle cx="-12.5" cy="47" r="1.8" fill="#ff9db0"/><circle cx="12.5" cy="47" r="1.8" fill="#ff9db0"/>
+              <path class="armL" d="M-13 66q-8 2-10 9" fill="none" stroke="#19486A" stroke-width="4" stroke-linecap="round"/>
+              <path class="armR" d="M13 66q8 2 10 9" fill="none" stroke="#19486A" stroke-width="4" stroke-linecap="round"/>
+              <rect x="-13" y="60" width="26" height="20" rx="8" fill="#fff" stroke="#19486A" stroke-width="2"/>
+              <circle class="core" cx="0" cy="70" r="3.4" fill="#FD6925"/>
+              <rect x="-11" y="80" width="8" height="6" rx="3" fill="#19486A"/><rect x="3" y="80" width="8" height="6" rx="3" fill="#19486A"/>
+            </g></g></g>
+          </g>
+        </svg>
         <svg class="viz" viewBox="0 0 230 120" data-viz="gan" aria-hidden="true"></svg>
+        <span class="t1">비지도 전이학습</span>
         <span class="t2">적대적 생성형 신경망</span>
       </div>
       <figure class="acc-p gh">
@@ -2691,7 +2755,9 @@
      원 그림 두 장(image/LA_lur.jpg · image/가나아크라시_대기질추론.jpg)에서 지도 영역만 잘라 캔버스에 그린다.
      자르는 비율(R)은 원 그림 실측이다 — LA 좌측 판 프레임 · 아크라 지도 프레임(색 막대 · 축 눈금 밖은 버린다).
      아크라 — 흐린 회색판 위에 16×11 칸을 시드 고정 순서로 '잡음 → 실제 그림' 으로 바꾼다(연출. 순서는 자료와 무관).
-     캔버스 해상도 = CSS 크기 × 무대 배율(--K) × dpr. 장에 들어올 때마다 처음부터, 끝나면 루프를 멈춘다. */
+     캔버스 해상도 = CSS 크기 × 무대 배율(--K) × dpr. 장에 들어올 때마다 처음부터.
+     2026-10-14 사용자 지시 — 가운데 로봇과 같은 10초 순환(P)으로 되풀이한다. 매 순환 0.2–1.5초 LA 스캔 · 1.5–4.4초 아크라 생성 ·
+     8.3–9.0초 아크라가 흐린 회색으로 돌아간다(로봇이 LA 로 되돌아가는 구간). 그림이 바뀌지 않는 구간은 다시 그리지 않는다. */
   window.accraGen = (function(){
     const cl = document.getElementById('acc-la'), cg = document.getElementById('acc-gh');
     if (!cl || !cg) return () => {};
@@ -2700,10 +2766,11 @@
     const img = {}, ready = Promise.all(Object.entries(SRC).map(([k, [u]]) => new Promise(ok => {
       const im = new Image(); im.onload = () => { img[k] = im; ok(); }; im.onerror = ok; im.src = u; })));
     const T_SCAN0 = 200, T_SCAN = 1300, T_GEN0 = 1500, T_GEN = 2400, T_TILE = 520, C = 16, Rw = 11;
+    const P = 10000, T_BACK0 = 8300, T_BACK = 700, T_HOLD = 6000;   // T_HOLD — 움직임을 끈 화면이 보여 줄 순간(생성이 끝난 뒤)
     let seed = 2024; const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
     const ORD = [...Array(C * Rw).keys()]; for (let k = ORD.length - 1; k > 0; k--) { const j = Math.floor(rnd() * (k + 1)); [ORD[k], ORD[j]] = [ORD[j], ORD[k]]; }
     const RANK = []; ORD.forEach((t, k) => RANK[t] = k);
-    let on = false, raf = 0, t0 = 0, L = null, G = null;
+    let on = false, raf = 0, t0 = 0, L = null, G = null, dirty = true;
 
     function prep(c, key){
       const im = img[key]; if (!im) return null;
@@ -2723,7 +2790,11 @@
       return o;
     }
     function frame(now){
-      const t = RM ? 1e9 : now - t0;
+      const te = now - t0, t = RM ? T_HOLD : te % P, first = !RM && te < P, F = 60;   // F — 구간 끝 뒤 한두 프레임 더 그린다
+      const busyL = (first && t < 400 + F) || (t > T_SCAN0 - F && t < T_SCAN0 + T_SCAN + F);
+      const busyG = (t > T_GEN0 - F && t < T_GEN0 + T_GEN + T_TILE + F) || (t > T_BACK0 - F && t < T_BACK0 + T_BACK + F);
+      if (!dirty && !busyL && !busyG) { if (on && !RM) raf = requestAnimationFrame(frame); return; }
+      dirty = false;
       if (L) { const { ctx, W, H, col } = L; ctx.clearRect(0, 0, W, H); ctx.globalAlpha = Math.min(1, t / 400); ctx.drawImage(col, 0, 0); ctx.globalAlpha = 1;
         const p = (t - T_SCAN0) / T_SCAN;
         if (p > 0 && p < 1) { const x = p * W, gr = ctx.createLinearGradient(x - W * .18, 0, x, 0);
@@ -2739,11 +2810,13 @@
           ctx.globalAlpha = Math.min(1, p); ctx.drawImage(col, x, y, tw + 1, th + 1, x, y, tw + 1, th + 1);
           if (p < 1) { done = false; ctx.globalAlpha = (1 - p) * .85; ctx.drawImage(noise, (cx * nw + (now / 40 | 0) % 3) % noise.width, cy * nh, nw, nh, x, y, tw + 1, th + 1); }
         }
-        ctx.globalAlpha = 1; ctx.imageSmoothingEnabled = true; }
-      if (on && !RM && !(done && t > T_GEN0 + T_GEN + T_TILE)) raf = requestAnimationFrame(frame);
+        ctx.globalAlpha = 1; ctx.imageSmoothingEnabled = true;
+        if (t > T_BACK0) { ctx.globalAlpha = Math.min(1, (t - T_BACK0) / T_BACK); ctx.drawImage(gray, 0, 0); ctx.globalAlpha = 1; } }
+      if (on && !RM) raf = requestAnimationFrame(frame);
     }
-    function start(){ ready.then(() => { if (!on) return; L = prep(cl, 'la'); G = prep(cg, 'gh'); t0 = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); }); }
-    addEventListener('resize', () => { if (!on) return; L = prep(cl, 'la'); G = prep(cg, 'gh'); cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); });
+    //  t0 는 장에 들어선 순간이다 — 로봇(CSS)과 R² 칩도 같은 순간에 시작하므로 그림을 받는 동안에도 셋의 시계가 어긋나지 않는다
+    function start(){ t0 = performance.now(); ready.then(() => { if (!on) return; L = prep(cl, 'la'); G = prep(cg, 'gh'); dirty = true; cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); }); }
+    addEventListener('resize', () => { if (!on) return; L = prep(cl, 'la'); G = prep(cg, 'gh'); dirty = true; cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); });
     return v => { if (v === on) return; on = v; if (on) start(); else cancelAnimationFrame(raf); };
   })();
 </script>

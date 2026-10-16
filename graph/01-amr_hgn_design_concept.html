@@ -736,41 +736,42 @@
     const cubismRobot = window.astraScene0 = new AstraCubism({ resolution: 1024 });
     cubismRobot.loaded.catch(e => console.warn('[ASTRA] 정적 원화로 유지:', e.message));
 
-    // 씬10 손바닥 로봇(image/로봇2_변형3_설명.png) — 알파 내장본(투명 61%)이라 별도 배경 제거 불필요.
+    // 씬10 손바닥 로봇 — 사용자 제공 1254² 투명 원본(2026-10-14).
     // 손바닥이 이미지 좌측을 향해 열려 있어 화면 우측 배치 시 손바닥이 화면 중앙을 향한다.
     const robot3Img = new Image(); let robot3Canvas = null;
     robot3Img.onload = () => {
         const c = document.createElement('canvas'); c.width = robot3Img.width; c.height = robot3Img.height;
         const x = c.getContext('2d'); x.drawImage(robot3Img, 0, 0);
-        x.globalCompositeOperation = 'source-atop';
-        x.fillStyle = 'rgba(40,70,120,0.22)'; x.fillRect(0, 0, c.width, c.height);   // 우주색 배경과 맞추는 콜드 틴트
         robot3Canvas = c;
     };
     robot3Img.onerror = () => { console.warn('[ROBOT3] 로드 실패 — 씬10 손바닥 로봇 생략:', robot3Img.src); };
-    robot3Img.src = 'image/로봇2_변형3_설명.png';
+    robot3Img.src = 'image/astra-epilogue/present-cutout.png';
     /* 에필로그 로봇 표정·손(2026-09-26 지시) — Live2D incoming-motion 리그를 옮겼다(scripts/build_epilogue_robot.py → image/astra-epilogue/).
-       로봇2_변형3_설명.png 는 incoming 기본(안내) 원화와 같은 1024² 그림이라 리그 좌표를 그대로 쓴다(layers.json 과 같은 값).
-       몸(x > cutX) · 팔(안내 = 원화 x ≤ cutX · 인사 · 가리키기) · 얼굴 조각(반감음 · 감은 눈 · 미소)을 각각 같은 콜드 틴트로 한 번 칠해 둔다.
-       매 프레임은 작은 머리 조각(EPI_HEAD)만 다시 합성한다 — 눈동자 메시 · 깜빡임 · 미소. 큰 1024² 오프스크린은 만들지 않는다. */
-    const EPI_N = 1024, EPI_CUT = 448, EPI_PIVOT = [400, 909];
+       2026-10-14 — 세 포즈 모두 사용자 제공 1254² 원본으로 교체하고 색상·해상도를 보존한다.
+       기존 1024 기준 리그 좌표와 표정 조각만 원본 배율로 맞춘다. 몸통은 안내 원본, 팔은 각 포즈의 같은 경계에서 자른다.
+       매 프레임은 작은 머리 조각(EPI_HEAD)만 다시 합성한다 — 눈동자 메시 · 깜빡임 · 미소. */
+    const EPI_N = 1254, EPI_SCALE = EPI_N / 1024, EPI_CUT = Math.round(448 * EPI_SCALE), EPI_PIVOT = [400, 909].map(v => v * EPI_SCALE);
     const EPI_EYES = [{ x: 561, y: 249, w: 42, h: 35, cx: 579, cy: 268, rx: 19, ry: 14, dx: 2.7, dy: 1.8 },
                       { x: 627, y: 230, w: 63, h: 48, cx: 654, cy: 254, rx: 30, ry: 20, dx: 4.2, dy: 2.7 }];
     const EPI_FACE = { half: [561, 235, 123, 47], closed: [561, 235, 123, 47], smile: [570, 323, 101, 71] };
     const EPI_HEAD = [548, 222, 150, 178];   // 눈 · 입 조각을 모두 덮는 머리 칸(1024 좌표)
+    EPI_EYES.forEach(e => Object.keys(e).forEach(k => e[k] *= EPI_SCALE));
+    Object.values(EPI_FACE).forEach(r => r.forEach((v, i) => r[i] = Math.round(v * EPI_SCALE)));
+    EPI_HEAD.forEach((v, i) => EPI_HEAD[i] = Math.round(v * EPI_SCALE));
     const EPI = { ready: false, body: null, armP: null, armW: null, armT: null, face: {}, head: null, gx: 0, gy: 0, lastT: null };
-    const epiTint = img => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const x = c.getContext('2d');
-        x.drawImage(img, 0, 0); x.globalCompositeOperation = 'source-atop'; x.fillStyle = 'rgba(40,70,120,0.22)'; x.fillRect(0, 0, c.width, c.height); return c; };
+    const epiFaceLayer = (img, rect) => { const c = document.createElement('canvas'); c.width = rect[2]; c.height = rect[3];
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); return c; };
     (() => {
-        const names = ['arm_wave', 'arm_point', 'face_half', 'face_closed', 'face_smile'], imgs = {};
+        const names = ['wave-cutout', 'point-cutout', 'face_half', 'face_closed', 'face_smile'], imgs = {};
         let left = names.length;
         const done = () => {
             if (--left > 0) return;
             const wait = () => { if (!robot3Canvas) { setTimeout(wait, 200); return; }
-                const cut = (x0, w) => { const c = document.createElement('canvas'); c.width = EPI_N; c.height = EPI_N; const x = c.getContext('2d');
-                    x.beginPath(); x.rect(x0, 0, w, EPI_N); x.clip(); x.drawImage(robot3Canvas, 0, 0); return c; };
+                const cut = (x0, w, source = robot3Canvas) => { const c = document.createElement('canvas'); c.width = EPI_N; c.height = EPI_N; const x = c.getContext('2d');
+                    x.beginPath(); x.rect(x0, 0, w, EPI_N); x.clip(); x.drawImage(source, 0, 0); return c; };
                 EPI.body = cut(EPI_CUT, EPI_N - EPI_CUT); EPI.armP = cut(0, EPI_CUT + 1);
-                EPI.armW = epiTint(imgs.arm_wave); EPI.armT = epiTint(imgs.arm_point);
-                ['half', 'closed', 'smile'].forEach(k => EPI.face[k] = epiTint(imgs['face_' + k]));
+                EPI.armW = cut(0, EPI_CUT + 1, imgs['wave-cutout']); EPI.armT = cut(0, EPI_CUT + 1, imgs['point-cutout']);
+                ['half', 'closed', 'smile'].forEach(k => EPI.face[k] = epiFaceLayer(imgs['face_' + k], EPI_FACE[k]));
                 EPI.head = document.createElement('canvas'); EPI.head.width = EPI_HEAD[2]; EPI.head.height = EPI_HEAD[3];
                 EPI.ready = true; };
             wait();
@@ -5523,10 +5524,10 @@
         // (a) 전체 에너지 글로우 — 로봇 자체를 additive 재드로우(자기 실루엣·밝기 따라 발광)
         //     2026-09-26 — 자세가 바뀌면 그 자세의 팔로 빛난다(pose = epiPose 결과). 없으면 종전처럼 원화 한 장.
         ctx.save(); ctx.globalCompositeOperation = 'lighter';
-        ctx.globalAlpha = enA * (0.085 + 0.05 * life);
+        ctx.globalAlpha = enA * (0.025 + 0.015 * life);   // 밝은 새 원본의 흰 패널 디테일을 보존한다.
         if (pose && EPI.ready) {
             ctx.drawImage(EPI.body, rdx, rdy, rdw, rdh);
-            const k = enA * (0.085 + 0.05 * life);
+            const k = enA * (0.025 + 0.015 * life);
             // ⚠ 팔 그림은 폭이 cutX+1(449) 이다 — 1024 칸 비율로 그린다(첫 판은 rdw 로 늘려 유령 손이 생겼다)
             [[EPI.armP, pose.p], [EPI.armT, pose.t], [EPI.armW, pose.w]].forEach(([c, w]) => { if (w > .01) { ctx.globalAlpha = k * w; ctx.drawImage(c, rdx, rdy, rdw * c.width / EPI_N, rdh * c.height / EPI_N); } });
         } else ctx.drawImage(robot3Canvas, rdx, rdy, rdw, rdh);
